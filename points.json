@@ -1,0 +1,157 @@
+{
+    "commonSetting": {
+        "company": "systex",
+        "frequency": 0,
+        "bindArea": "root.systex.Rich19.7F.Daisy"
+    },
+    "channelSetting": {
+        "volt": {
+            "value": [
+                "Address0",
+                "Address1"
+            ],
+            "ieee754": true,
+            "reverse": true,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "current": {
+            "value": [
+                "Address2",
+                "Address3"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "kw": {
+            "value": [
+                "Address4",
+                "Address5"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "kwh": {
+            "value": [
+                "Address6",
+                "Address7"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "co2kg": {
+            "value": [
+                "Address8",
+                "Address9"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "demand": {
+            "value": [
+                "Address10",
+                "Address11"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "pf": {
+            "value": [
+                "Address12",
+                "Address13"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "waterInTemp": {
+            "value": [
+                "Address20"
+            ],
+            "ieee754": false,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "WORD"
+        },
+        "waterOutTemp": {
+            "value": [
+                "Address21"
+            ],
+            "ieee754": false,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "WORD"
+        },
+        "waterFlow": {
+            "value": [
+                "Address22",
+                "Address23"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "waterFlowAcc": {
+            "value": [
+                "Address24",
+                "Address25"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "waterOutPressure": {
+            "value": [
+                "Address26",
+                "Address27"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "waterInPressure": {
+            "value": [
+                "Address28",
+                "Address29"
+            ],
+            "ieee754": true,
+            "reverse": true,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "airFlow": {
+            "value": [
+                "Address30",
+                "Address31"
+            ],
+            "ieee754": true,
+            "reverse": true,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        },
+        "airFlowAcc": {
+            "value": [
+                "Address32",
+                "Address33"
+            ],
+            "ieee754": true,
+            "reverse": false,
+            "floatPoint": 2,
+            "Type": "DWORD"
+        }
+    }
+}
