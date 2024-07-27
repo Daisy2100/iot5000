@@ -7,9 +7,12 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sync/atomic"
+	"time"
 
 	format "example.com/tool/format"
 	"example.com/tool/models"
+	"github.com/gammazero/workerpool"
 )
 
 func extractEquipmentName(url string) (string, error) {
@@ -53,6 +56,10 @@ func GetData(ctx context.Context, urls []string, points models.ConfigPoint) ([]m
 
 	for _, url := range urls {
 		equipmentName, err := extractEquipmentName(url)
+		if err != nil {
+			errors = append(errors, err)
+			continue
+		}
 
 		data, err := fetchEquipmentData(ctx, url)
 		if err != nil {
@@ -69,7 +76,7 @@ func GetData(ctx context.Context, urls []string, points models.ConfigPoint) ([]m
 }
 
 // PrepareAndFetchData prepares URLs based on given parameters and fetches data using concurrent goroutines.
-func PrepareAndFetchData(ctx context.Context, config models.Config, points models.ConfigPoint, startRange, endRange, portStart, portEnd int, messageQueue chan<- models.SentData) {
+func PrepareAndFetchData(ctx context.Context, config models.Config, points models.ConfigPoint, startRange, endRange, portStart, portEnd int, messageQueue chan<- models.SentData, wp *workerpool.WorkerPool, apiRequestCount *int32) {
 	// Prepare URLs
 	urls := make([]string, 0)
 	host := config.GetDataApiHost
@@ -82,21 +89,28 @@ func PrepareAndFetchData(ctx context.Context, config models.Config, points model
 	}
 
 	// Fetch data with concurrency control
-	func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			wp.Submit(func() {
 				data, errs := GetData(ctx, urls, points)
-				if len(errs) > 0 {
-					log.Printf("Errors occurred while fetching data: %v", errs)
+				for _, err := range errs {
+					// Only log errors if the context is not done
+					if ctx.Err() == nil {
+						log.Printf("Errors occurred while fetching data: %v", err)
+					}
 				}
 
 				for _, item := range data {
+					atomic.AddInt32(apiRequestCount, 1) // Increment the counter
 					messageQueue <- item
 				}
-			}
+			})
+
+			// Add a sleep interval to prevent resource exhaustion
+			time.Sleep(10 * time.Millisecond)
 		}
-	}()
+	}
 }

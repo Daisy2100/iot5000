@@ -29,6 +29,7 @@ tool/
 
 ```
 go mod tidy
+go get github.com/gammazero/workerpool
 ```
 
 ## run

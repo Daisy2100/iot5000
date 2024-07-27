@@ -10,6 +10,7 @@ import (
 	initSetting "example.com/tool/init"
 	"example.com/tool/models"
 	"example.com/tool/saveData"
+	workerpool "github.com/gammazero/workerpool"
 )
 
 func main() {
@@ -24,8 +25,6 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	// fmt.Printf("Initial points.json: \n", points.ChannelSetting)
-	// ===============================================================================================
 
 	// 2. Create a context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.StartMinute)*time.Minute)
@@ -38,30 +37,31 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 	fmt.Printf("Initial API response: %s\n", initialResponse)
-	// ===============================================================================================
 
-	// 4. Define the semaphore with a limit of 200 concurrent requests
-	// semaphoreForGetApi := make(chan struct{}, 198)
-	// semaphoreForSaveApi := make(chan struct{}, 2)
-	// ===============================================================================================
+	// 4. Create worker pools
+	wpGet1 := workerpool.New(config.SemaphoreForGet)
+	wpGet2 := workerpool.New(config.SemaphoreForGet)
+	wpGet3 := workerpool.New(config.SemaphoreForGet)
+	wpGet4 := workerpool.New(config.SemaphoreForGet)
+	wpGet5 := workerpool.New(config.SemaphoreForGet)
+	wpSave := workerpool.New(config.SemaphoreForSave)
 
 	// 5. Create queue
+	var apiRequestCount int32
 	messageQueue := make(chan models.SentData, config.MaxQueue)
 
-	// 6. Prepare URLs for fetching data from multiple ranges
-	go getData.PrepareAndFetchData(ctx, *config, *points, 1, 1000, 1, 1, messageQueue)    // Range 1-1000 on port 1
-	go getData.PrepareAndFetchData(ctx, *config, *points, 1001, 2000, 2, 2, messageQueue) // Range 1001-2000 on port 2
-	go getData.PrepareAndFetchData(ctx, *config, *points, 2001, 3000, 3, 3, messageQueue) // Range 2001-3000 on port 3
-	go getData.PrepareAndFetchData(ctx, *config, *points, 3001, 4000, 4, 4, messageQueue) // Range 3001-4000 on port 4
-	go getData.PrepareAndFetchData(ctx, *config, *points, 4001, 5000, 5, 5, messageQueue) // Range 4001-5000 on port 5
+	// 6. Prepare and fetch data
+	go getData.PrepareAndFetchData(ctx, *config, *points, 1, 1000, 1, 1, messageQueue, wpGet1, &apiRequestCount)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 1001, 2000, 2, 2, messageQueue, wpGet2, &apiRequestCount)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 2001, 3000, 3, 3, messageQueue, wpGet3, &apiRequestCount)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 3001, 4000, 4, 4, messageQueue, wpGet4, &apiRequestCount)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 4001, 5000, 5, 5, messageQueue, wpGet5, &apiRequestCount)
 
-	// 8. Save data with save API
-	go saveData.AggregateAndSaveData(ctx, messageQueue, fmt.Sprintf("http://%s:18080/rest/v2/insertRecords", config.SentDataApiHost), config.BatchSize)
-	go saveData.AggregateAndSaveData(ctx, messageQueue, fmt.Sprintf("http://%s:18080/rest/v2/insertRecords", config.SentDataApiHost), config.BatchSize)
+	// 7. Submit task to worker pool for saving data
+	go saveData.AggregateAndSaveData(ctx, messageQueue, fmt.Sprintf("http://%s:18080/rest/v2/insertRecords", config.SentDataApiHost), config.BatchSize, wpSave)
 
-	// Wait for the context to expire
+	// Wait for the context to be done
 	<-ctx.Done()
-	// ===============================================================================================
 
 	// 8. Make the final API request before stopping
 	finalAPIURL := fmt.Sprintf("http://%s:3001/setFinal/Daisy", config.GetDataApiHost)
@@ -69,6 +69,22 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
+	// Wait for all tasks to complete
+	wpGet1.StopWait()
+	wpGet2.StopWait()
+	wpGet3.StopWait()
+	wpGet4.StopWait()
+	wpGet5.StopWait()
+	wpSave.StopWait()
+
+	// Close the messageQueue after all tasks are done
+	close(messageQueue)
+
+	totalSeconds := config.StartMinute * 60
+	averageRequestsPerSecond := float64(apiRequestCount) / float64(totalSeconds)
+
 	fmt.Printf("Final API response: %s\n", finalResponse)
 	fmt.Println("Time's up!")
+	fmt.Printf("Average API requests per second: %.2f\n", averageRequestsPerSecond)
 }

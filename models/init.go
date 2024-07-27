@@ -2,11 +2,13 @@ package models
 
 // Config struct to hold the JSON configuration
 type Config struct {
-	GetDataApiHost  string `json:"getDataApiHost"`
-	SentDataApiHost string `json:"sentDataApiHost"`
-	BatchSize       int    `json:"BatchSize"`
-	StartMinute     int    `json:"startMinute"`
-	MaxQueue        int    `json:"maxQueue"`
+	GetDataApiHost   string `json:"getDataApiHost"`
+	SentDataApiHost  string `json:"sentDataApiHost"`
+	BatchSize        int    `json:"BatchSize"`
+	StartMinute      int    `json:"startMinute"`
+	MaxQueue         int    `json:"maxQueue"`
+	SemaphoreForGet  int    `json:"semaphoreForGet"`
+	SemaphoreForSave int    `json:"semaphoreForSave"`
 }
 
 type ConfigPoint struct {

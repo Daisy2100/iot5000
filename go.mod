@@ -9,7 +9,11 @@ require (
 	gorm.io/gorm v1.25.10
 )
 
-require github.com/apache/thrift v0.15.0 // indirect
+require (
+	github.com/apache/thrift v0.15.0 // indirect
+	github.com/gammazero/deque v0.2.0 // indirect
+	github.com/gammazero/workerpool v1.1.3 // indirect
+)
 
 require (
 	github.com/apache/iotdb-client-go v1.3.2
