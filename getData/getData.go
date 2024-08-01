@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"sync/atomic"
 	"time"
 
 	format "example.com/tool/format"
@@ -76,7 +75,7 @@ func GetData(ctx context.Context, urls []string, points models.ConfigPoint) ([]m
 }
 
 // PrepareAndFetchData prepares URLs based on given parameters and fetches data using concurrent goroutines.
-func PrepareAndFetchData(ctx context.Context, config models.Config, points models.ConfigPoint, startRange, endRange, portStart, portEnd int, messageQueue chan<- models.SentData, wp *workerpool.WorkerPool, apiRequestCount *int32) {
+func PrepareAndFetchData(ctx context.Context, config models.Config, points models.ConfigPoint, startRange, endRange, portStart, portEnd int, messageQueue chan<- models.SentData, wp *workerpool.WorkerPool) {
 	// Prepare URLs
 	urls := make([]string, 0)
 	host := config.GetDataApiHost
@@ -104,7 +103,6 @@ func PrepareAndFetchData(ctx context.Context, config models.Config, points model
 				}
 
 				for _, item := range data {
-					atomic.AddInt32(apiRequestCount, 1) // Increment the counter
 					messageQueue <- item
 				}
 			})

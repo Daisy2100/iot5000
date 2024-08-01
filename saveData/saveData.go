@@ -17,9 +17,10 @@ import (
 var httpClient = &http.Client{
 	Timeout: 10 * time.Second, // Increase timeout as needed
 	Transport: &http.Transport{
-		MaxIdleConns:        500,
-		MaxIdleConnsPerHost: 10,
-		IdleConnTimeout:     100,
+		MaxIdleConns:        500,              // Increase the total number of idle connections
+		MaxIdleConnsPerHost: 100,              // Increase the number of idle connections per host
+		IdleConnTimeout:     90 * time.Second, // Set a reasonable timeout for idle connections
+		DisableKeepAlives:   false,            // Ensure keep-alive connections are enabled
 	},
 }
 

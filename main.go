@@ -47,15 +47,14 @@ func main() {
 	wpSave := workerpool.New(config.SemaphoreForSave)
 
 	// 5. Create queue
-	var apiRequestCount int32
 	messageQueue := make(chan models.SentData, config.MaxQueue)
 
 	// 6. Prepare and fetch data
-	go getData.PrepareAndFetchData(ctx, *config, *points, 1, 1000, 1, 1, messageQueue, wpGet1, &apiRequestCount)
-	go getData.PrepareAndFetchData(ctx, *config, *points, 1001, 2000, 2, 2, messageQueue, wpGet2, &apiRequestCount)
-	go getData.PrepareAndFetchData(ctx, *config, *points, 2001, 3000, 3, 3, messageQueue, wpGet3, &apiRequestCount)
-	go getData.PrepareAndFetchData(ctx, *config, *points, 3001, 4000, 4, 4, messageQueue, wpGet4, &apiRequestCount)
-	go getData.PrepareAndFetchData(ctx, *config, *points, 4001, 5000, 5, 5, messageQueue, wpGet5, &apiRequestCount)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 1, 1000, 1, 1, messageQueue, wpGet1)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 1001, 2000, 2, 2, messageQueue, wpGet2)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 2001, 3000, 3, 3, messageQueue, wpGet3)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 3001, 4000, 4, 4, messageQueue, wpGet4)
+	go getData.PrepareAndFetchData(ctx, *config, *points, 4001, 5000, 5, 5, messageQueue, wpGet5)
 
 	// 7. Submit task to worker pool for saving data
 	go saveData.AggregateAndSaveData(ctx, messageQueue, fmt.Sprintf("http://%s:18080/rest/v2/insertRecords", config.SentDataApiHost), config.BatchSize, wpSave)
@@ -81,10 +80,6 @@ func main() {
 	// Close the messageQueue after all tasks are done
 	close(messageQueue)
 
-	totalSeconds := config.StartMinute * 60
-	averageRequestsPerSecond := float64(apiRequestCount) / float64(totalSeconds)
-
 	fmt.Printf("Final API response: %s\n", finalResponse)
 	fmt.Println("Time's up!")
-	fmt.Printf("Average API requests per second: %.2f\n", averageRequestsPerSecond)
 }
