@@ -108,13 +108,13 @@ func ProcessData(equipmentName string, response map[string]float64, settings mod
 		}
 	}
 
-	// 设置 SentData
+	// 設置 SentData
 	sentData = models.SentData{
 		Timestamps:       timestamps,
 		MeasurementsList: measurementsList,
 		DataTypesList:    dataTypesList,
 		ValuesList:       valuesList,
-		IsAligned:        false,
+		IsAligned:        true,
 		Devices:          fmt.Sprintf("root.systex.Rich19.7F.Daisy.%s", equipmentName),
 	}
 

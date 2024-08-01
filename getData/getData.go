@@ -114,3 +114,41 @@ func PrepareAndFetchData(ctx context.Context, config models.Config, points model
 		}
 	}
 }
+
+func PrepareAndFetchDataNoCount(ctx context.Context, config models.Config, points models.ConfigPoint, startRange, endRange, portStart, portEnd int, messageQueue chan<- models.SentData, wp *workerpool.WorkerPool) {
+	// Prepare URLs
+	urls := make([]string, 0)
+	host := config.GetDataApiHost
+
+	for portOffset := portStart; portOffset <= portEnd; portOffset++ {
+		for i := startRange; i <= endRange; i++ {
+			url := fmt.Sprintf("http://%s:%d/equipment%d", host, 3000+portOffset, i)
+			urls = append(urls, url)
+		}
+	}
+
+	// Fetch data with concurrency control
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			wp.Submit(func() {
+				data, errs := GetData(ctx, urls, points)
+				for _, err := range errs {
+					// Only log errors if the context is not done
+					if ctx.Err() == nil {
+						log.Printf("Errors occurred while fetching data: %v", err)
+					}
+				}
+
+				for _, item := range data {
+					messageQueue <- item
+				}
+			})
+
+			// Add a sleep interval to prevent resource exhaustion
+			time.Sleep(1 * time.Millisecond)
+		}
+	}
+}

@@ -19,7 +19,7 @@ tool/
 
 - [Goroutines](https://tour.golang.org/concurrency/1)：Golang 原生的併發機制，輕量級執行緒管理。
 - [Channels](https://tour.golang.org/concurrency/2)：用於 Goroutines 之間的通訊
-- [Go Worker Pool](https://github.com/panjf2000/ants)：用于处理大量并发任务的库。
+- [Workerpool](github.com/gammazero/workerpool)：用於大量併發
 
 ## 環境要求
 
