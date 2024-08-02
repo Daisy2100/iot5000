@@ -67,15 +67,15 @@ func main() {
 	fmt.Printf("Initial API response: %s\n", initialResponse)
 
 	// 使用 context 來控制停止信號
-	ctx, cancel := context.WithTimeout(context.Background(), Duration)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.StartMinute)*time.Minute)
 	defer cancel()
 
 	// 這個 goroutine 是用於處理 read chan 資料
-	for i := 0; i < 7; i++ {
+	for i := 0; i < config.SemaphoreForSave; i++ {
 		go processChannel(responseChan, ctx.Done())
 	}
 
-	for i := 0; i < WorkerCount; i++ {
+	for i := 0; i < config.SemaphoreForGet; i++ {
 		for _, url := range urls {
 			wg.Add(1)
 			go func(url string) {
@@ -247,7 +247,7 @@ func flushBatchData(batchResponseData *[]AddressFormatData) {
 		}
 		defer resp.Body.Close()
 
-		fmt.Println("Response status:", resp.Status)
+		// fmt.Println("Response status:", resp.Status)
 	}
 }
 
@@ -332,15 +332,10 @@ func addressDataToSaveData(data map[string]float64, equipmentName string, point 
 
 func getCurrentUnixTimestampInMilliseconds() int64 {
 	now := time.Now()
-	// 獲取 UTC 時間的毫秒數
-	utcMilliseconds := now.UnixNano() / int64(time.Millisecond)
-	// 時區偏移量，+8 小時
-	timezoneOffset := int64(8 * 60 * 60 * 1000)
-	// 計算 UTC+8 的毫秒數
-	localMilliseconds := utcMilliseconds + timezoneOffset
+	utcMilliseconds := now.UnixMilli()
+	localMilliseconds := utcMilliseconds
 	return localMilliseconds
 }
-
 func extractEquipmentName(url string) (string, error) {
 	re := regexp.MustCompile(`equipment(\d+)`)
 	matches := re.FindStringSubmatch(url)
