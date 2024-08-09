@@ -27,9 +27,7 @@ type AddressFormatData struct {
 }
 
 const (
-	Duration    = 600 * time.Second // 運行時間
-	BatchSize   = 100
-	WorkerCount = 12 // 並發請求的數量
+	BatchSize = 100
 )
 
 var urls = []string{
@@ -83,7 +81,7 @@ func main() {
 				defer wg.Done()
 				for {
 					equipmentCount++
-					if equipmentCount > 2 {
+					if equipmentCount > 5000 {
 						equipmentCount = 1
 					}
 
@@ -173,7 +171,7 @@ func processChannel(responseChan <-chan AddressFormatData, stop <-chan struct{})
 		select {
 		case apiResp, ok := <-responseChan:
 			if !ok {
-				// Channel 以關閉, 最後一次處理 batch 剩餘資料
+				// Channel 關閉, 最後一次處理 batch 剩餘資料
 				flushBatchData(&batch)
 				return
 			}
@@ -328,7 +326,7 @@ func addressDataToSaveData(data map[string]float64, equipmentName string, point 
 	return formatData
 }
 
-// --------------------------
+// -------------------------- format
 
 func getCurrentUnixTimestampInMilliseconds() int64 {
 	now := time.Now()
@@ -336,6 +334,7 @@ func getCurrentUnixTimestampInMilliseconds() int64 {
 	localMilliseconds := utcMilliseconds
 	return localMilliseconds
 }
+
 func extractEquipmentName(url string) (string, error) {
 	re := regexp.MustCompile(`equipment(\d+)`)
 	matches := re.FindStringSubmatch(url)

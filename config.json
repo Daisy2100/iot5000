@@ -3,7 +3,6 @@
     "sentDataApiHost": "10.41.1.58",
     "BatchSize": 200,
     "startMinute": 10,
-    "maxQueue": 500000,
     "semaphoreForGet": 12,
     "semaphoreForSave": 7
 }

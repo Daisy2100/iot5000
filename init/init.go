@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"example.com/tool/models"
 )
@@ -63,12 +62,4 @@ func MakeAPIRequest(url string) (string, error) {
 	}
 
 	return string(body), nil
-}
-
-// startTimer starts a timer for the given duration in minutes.
-func StartTimer(minutes int) {
-	duration := time.Duration(minutes) * time.Minute
-	fmt.Printf("Starting timer for %d minutes...\n", minutes)
-	timer := time.NewTimer(duration)
-	<-timer.C
 }

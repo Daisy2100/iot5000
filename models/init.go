@@ -6,7 +6,6 @@ type Config struct {
 	SentDataApiHost  string `json:"sentDataApiHost"`
 	BatchSize        int    `json:"BatchSize"`
 	StartMinute      int    `json:"startMinute"`
-	MaxQueue         int    `json:"maxQueue"`
 	SemaphoreForGet  int    `json:"semaphoreForGet"`
 	SemaphoreForSave int    `json:"semaphoreForSave"`
 }

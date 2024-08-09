@@ -2,24 +2,10 @@
 
 高頻率讀取5000個設備後，將資料進行處理與轉換，最後存入資料庫。
 
-```
-tool/
-├── main.go
-├── reader/
-│ └── reader.go
-├── processor/
-│ └── processor.go
-├── storage/
-│ └── storage.go
-└── models/
-└── data.go
-```
-
 ## 使用到的框架和庫
 
 - [Goroutines](https://tour.golang.org/concurrency/1)：Golang 原生的併發機制，輕量級執行緒管理。
 - [Channels](https://tour.golang.org/concurrency/2)：用於 Goroutines 之間的通訊
-- [Go Worker Pool](https://github.com/panjf2000/ants)：用于处理大量并发任务的库。
 
 ## 環境要求
 
@@ -29,7 +15,6 @@ tool/
 
 ```
 go mod tidy
-go get github.com/gammazero/workerpool
 ```
 
 ## run
